@@ -25,7 +25,7 @@ export default async function EventsPage({ params }: EventsPageProps) {
 
     return (
         <main className="flex flex-col items-center py-24 px-5">
-            <MainH1>
+            <MainH1 className="mb-28">
                 {city === 'all'
                     ? 'All Events'
                     : `Events in ${capitalizeFirstWord(city)}`}{' '}
