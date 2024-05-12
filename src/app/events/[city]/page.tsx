@@ -8,14 +8,14 @@ type EventsPageProps = {
 };
 
 export default async function EventsPage({ params }: EventsPageProps) {
+    const { city } = params;
+
     const response = await fetch(
-        'https://bytegrad.com/course-assets/projects/evento/api/events?city=austin'
+        `https://bytegrad.com/course-assets/projects/evento/api/events?city=${city}`
     );
     if (!response.ok) throw new Error('Failed to fetch data.');
 
     const events: EventoEvent[] = await response.json();
-
-    const { city } = params;
 
     const capitalizeFirstWord = (str: string): string => {
         if (!str) return '';
