@@ -1,37 +1,44 @@
-import { EventoEvent } from '@/lib/types';
+import { Suspense } from 'react';
 
+import { Metadata } from 'next';
+
+import { capitalizeFirstLetter, getEvents } from '@/lib/utils';
+
+import Loading from './loading';
 import MainH1 from '@/components/main-h1';
 import EventsList from '@/components/events-list';
 
-type EventsPageProps = {
+type Props = {
     params: { city: string };
 };
 
-export default async function EventsPage({ params }: EventsPageProps) {
+export function generateMetadata({ params }: Props): Metadata {
     const { city } = params;
 
-    const response = await fetch(
-        `https://bytegrad.com/course-assets/projects/evento/api/events?city=${city}`
-    );
-    if (!response.ok) throw new Error('Failed to fetch data.');
-
-    const events: EventoEvent[] = await response.json();
-
-    const capitalizeFirstWord = (str: string): string => {
-        if (!str) return '';
-
-        return str.charAt(0).toUpperCase() + str.slice(1);
+    return {
+        title:
+            city === 'all'
+                ? 'All Events'
+                : `Event in ${capitalizeFirstLetter(city)}`,
     };
+}
+
+export default async function EventsPage({ params }: Props) {
+    const { city } = params;
+
+    const events = await getEvents(city);
 
     return (
         <main className="flex flex-col items-center py-24 px-5">
             <MainH1 className="mb-28">
                 {city === 'all'
                     ? 'All Events'
-                    : `Events in ${capitalizeFirstWord(city)}`}{' '}
+                    : `Events in ${capitalizeFirstLetter(city)}`}{' '}
             </MainH1>
 
-            <EventsList events={events} />
+            <Suspense fallback={<Loading />}>
+                <EventsList events={events} />
+            </Suspense>
         </main>
     );
 }

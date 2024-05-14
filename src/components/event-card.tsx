@@ -1,4 +1,10 @@
-import { EventoEvent } from '@/lib/types';
+'use client';
+
+import { useRef } from 'react';
+
+import { motion, useScroll, useTransform } from 'framer-motion';
+
+import { EventoEvent } from '@prisma/client';
 
 import Link from 'next/link';
 import Image from 'next/image';
@@ -7,11 +13,32 @@ type EventCardProps = {
     event: EventoEvent;
 };
 
+const MotionLink = motion(Link);
+
 export default function EventCard({ event }: EventCardProps) {
+    const ref = useRef(null);
+    const { scrollYProgress } = useScroll({
+        target: ref,
+        offset: ['0 1', '1.5 1'],
+    });
+    const scaleProgress = useTransform(scrollYProgress, [0, 1], [0.8, 1]);
+    const opacityProgress = useTransform(scrollYProgress, [0, 1], [0.3, 1]);
+
     return (
-        <Link
+        <MotionLink
+            ref={ref}
             href={`/event/${event.slug}`}
             className="flex-1 basis-80 h-[380px] max-w-[500px]"
+            style={{
+                // @ts-ignore
+                scale: scaleProgress,
+                // @ts-ignore
+                opacity: opacityProgress,
+            }}
+            initial={{
+                scale: 0,
+                opacity: 0.8,
+            }}
         >
             <section className="relative flex flex-col w-full h-full bg-white/[3%] rounded-xl overflow-hidden state-effects">
                 <Image
@@ -44,6 +71,6 @@ export default function EventCard({ event }: EventCardProps) {
                     </p>
                 </section>
             </section>
-        </Link>
+        </MotionLink>
     );
 }
