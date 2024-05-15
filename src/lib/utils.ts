@@ -16,10 +16,7 @@ export function capitalizeFirstLetter(str: string): string {
     return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-export async function getEvents(
-    city: string,
-    page: number = 1
-): Promise<EventoEvent[]> {
+export async function getEvents(city: string, page: number = 1) {
     const events = await prisma.eventoEvent.findMany({
         where: {
             city: city === 'all' ? undefined : capitalizeFirstLetter(city),
@@ -31,7 +28,19 @@ export async function getEvents(
         take: 6,
     });
 
-    return events;
+    let totalCount;
+
+    if (city === 'all') {
+        totalCount = await prisma.eventoEvent.count();
+    } else {
+        totalCount = await prisma.eventoEvent.count({
+            where: {
+                city: capitalizeFirstLetter(city),
+            },
+        });
+    }
+
+    return { events, totalCount };
 }
 
 export async function getEvent(slug: string): Promise<EventoEvent | null> {

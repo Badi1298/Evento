@@ -32,9 +32,13 @@ export default async function EventsPage({
     searchParams,
 }: EventsPageProps) {
     const { city } = params;
-    const page = searchParams.page || 1;
+    const page = Number(searchParams.page) || 1;
 
-    const events = await getEvents(city, Number(page));
+    const { events, totalCount } = await getEvents(city, page);
+
+    const previousPath = page > 1 ? `/events/${city}?page=${page - 1}` : '';
+    const nextPath =
+        totalCount > 6 * page ? `/events/${city}?page=${page + 1}` : '';
 
     return (
         <main className="flex flex-col items-center py-24 px-5">
@@ -45,7 +49,11 @@ export default async function EventsPage({
             </MainH1>
 
             <Suspense fallback={<Loading />}>
-                <EventsList events={events} />
+                <EventsList
+                    events={events}
+                    previousPath={previousPath}
+                    nextPath={nextPath}
+                />
             </Suspense>
         </main>
     );
