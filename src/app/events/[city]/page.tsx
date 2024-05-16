@@ -1,6 +1,7 @@
+import { Metadata } from 'next';
 import { Suspense } from 'react';
 
-import { Metadata } from 'next';
+import { z } from 'zod';
 
 import { capitalizeFirstLetter, getEvents } from '@/lib/utils';
 
@@ -27,28 +28,30 @@ export function generateMetadata({ params }: Props): Metadata {
     };
 }
 
+const pageNumberSchema = z.coerce.number().int().positive().optional();
+
 export default async function EventsPage({
     params,
     searchParams,
 }: EventsPageProps) {
     const { city } = params;
-    const page = Number(searchParams.page) || 1;
+    const parsedPage = pageNumberSchema.safeParse(searchParams.page);
 
+    if (!parsedPage.success) {
+        throw new Error('Invalid page number');
+    }
+
+    const page = Number(parsedPage.data);
     const { events, totalCount } = await getEvents(city, page);
 
-    const previousPath = page > 1 ? `/events/${city}?page=${page - 1}` : '';
-    const nextPath =
-        totalCount > 6 * page ? `/events/${city}?page=${page + 1}` : '';
+    const previousPath = getPreviousPath(city, page);
+    const nextPath = getNextPath(city, page, totalCount);
 
     return (
         <main className="flex flex-col items-center py-24 px-5">
-            <MainH1 className="mb-28">
-                {city === 'all'
-                    ? 'All Events'
-                    : `Events in ${capitalizeFirstLetter(city)}`}{' '}
-            </MainH1>
+            <MainH1 className="mb-28">{getCityTitle(city)}</MainH1>
 
-            <Suspense fallback={<Loading />}>
+            <Suspense key={`${city}-${page}`} fallback={<Loading />}>
                 <EventsList
                     events={events}
                     previousPath={previousPath}
@@ -57,4 +60,18 @@ export default async function EventsPage({
             </Suspense>
         </main>
     );
+}
+
+function getPreviousPath(city: string, page: number): string {
+    return page > 1 ? `/events/${city}?page=${page - 1}` : '';
+}
+
+function getNextPath(city: string, page: number, totalCount: number): string {
+    return totalCount > 6 * page ? `/events/${city}?page=${page + 1}` : '';
+}
+
+function getCityTitle(city: string): string {
+    return city === 'all'
+        ? 'All Events'
+        : `Events in ${capitalizeFirstLetter(city)}`;
 }

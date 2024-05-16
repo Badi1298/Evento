@@ -12,7 +12,7 @@ export default function SearchForm() {
 
         if (!searchText) return;
 
-        router.push(`/events/${searchText}`);
+        router.push(`/events/${searchText}?page=1`);
     };
 
     return (

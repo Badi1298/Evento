@@ -15,7 +15,7 @@ const routes = [
     },
     {
         name: 'Events',
-        path: '/events/all',
+        path: '/events/all?page=1',
     },
 ];
 
