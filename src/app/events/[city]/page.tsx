@@ -3,7 +3,8 @@ import { Suspense } from 'react';
 
 import { z } from 'zod';
 
-import { capitalizeFirstLetter, getEvents } from '@/lib/utils';
+import { getEvents } from '@/lib/server-utils';
+import { capitalizeFirstLetter } from '@/lib/utils';
 
 import Loading from './loading';
 import MainH1 from '@/components/main-h1';

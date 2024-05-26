@@ -2,7 +2,7 @@ import { format } from 'date-fns';
 
 import { Metadata } from 'next';
 
-import { getEvent } from '@/lib/utils';
+import { getEvent } from '@/lib/server-utils';
 
 import Image from 'next/image';
 import MainH1 from '@/components/main-h1';
@@ -19,8 +19,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const event = await getEvent(slug);
 
     return {
-        title: event.name,
+        title: event?.name,
     };
+}
+
+export async function generateStaticParams() {
+    // top 100 most popular events
+    return [{ slug: 'comedy-extravaganza' }, { slug: 'dj-practice-session' }];
 }
 
 export default async function EventPage({ params }: Props) {
